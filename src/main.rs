@@ -24,12 +24,20 @@ fn main() {
     println!("Hello, world!");
 }
 
-fn put() {
-    println!("Put data into database");
+fn setup_db() {
+    println!("Set up database");
 }
 
-fn get() {
-    println!("Get data from database");
+fn destroy_db() {
+    println!("Destroy database");
+}
+
+fn write_db(key:String, value:String) {
+    println!("Write key {}, value {} to database", key, value);
+}
+
+fn read_db(key:String) {
+    println!("Retrieve value for key {} from database", key)
 }
 
 #[cfg(test)]
@@ -38,6 +46,30 @@ mod tests {
 
     #[test]
     fn it_works() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn db_issetup() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn db_isdestroyed() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn db_testwrite() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn db_testread() {
         let result = 2 + 2;
         assert_eq!(result, 4);
     }

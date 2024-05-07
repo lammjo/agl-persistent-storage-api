@@ -1,76 +1,48 @@
-use rocksdb::{DB, Options};
+use rocksdb::{Options, DB};
 
 fn main() {
-    // NB: db is automatically closed at end of lifetime
-    let path = "testpath";
-    {
-        let db = DB::open_default(path).unwrap();
-        db.put(b"a", b"1").unwrap();
-        db.put(b"b", b"2").unwrap();
-        db.put(b"c", b"3").unwrap();
-        match db.get(b"a") {
-            Ok(Some(value)) => println!("retrieved value {}", String::from_utf8(value).unwrap()),
-            Ok(None) => println!("value not found"),
-            Err(e) => println!("operational problem encountered: {}", e),
-        }
-        db.delete(b"a").unwrap();
-        match db.get(b"a") {
-            Ok(Some(value)) => println!("retrieved value {}", String::from_utf8(value).unwrap()),
-            Ok(None) => println!("value not found"),
-            Err(e) => println!("operational problem encountered: {}", e),
-        }
-    }
-    let _ = DB::destroy(&Options::default(), path);
-    println!("Hello, world!");
+    let mut db = setup_db("testpath");
+    write_db(&mut db, "a", "test");
+    read_db(&mut db, "a");
+    destroy_db("testpath");
 }
 
-fn setup_db() {
+fn setup_db(path:&str) -> DB {
     println!("Set up database");
+    let db = DB::open_default(path).unwrap();
+
+    return db;
 }
 
-fn destroy_db() {
+fn destroy_db(path:&str) {
     println!("Destroy database");
+    let _ = DB::destroy(&Options::default(), path);
 }
 
-fn write_db(key:String, value:String) {
+fn write_db(db:&mut DB, key:&str, value:&str) {
     println!("Write key {}, value {} to database", key, value);
+    db.put(key, value).unwrap();
 }
 
-fn read_db(key:String) {
-    println!("Retrieve value for key {} from database", key)
+fn read_db(db:&mut DB, key:&str) {
+    println!("Retrieve value for key {} from database", key);
+    match db.get(key) {
+        Ok(Some(value)) => println!("retrieved value {}", String::from_utf8(value).unwrap()),
+        Ok(None) => println!("value not found"),
+        Err(e) => println!("operational problem encountered: {}", e),
+    };
 }
 
 #[cfg(test)]
 // Unit tests go here
-mod tests {    
+mod tests {
+use super::*;
 
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-
-    #[test]
-    fn db_issetup() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-
-    #[test]
-    fn db_isdestroyed() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-
-    #[test]
-    fn db_testwrite() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-
-    #[test]
-    fn db_testread() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn db_testwriteread() {
+        let mut db = setup_db("testpath");
+        write_db(&mut db, "a", "test");
+        read_db(&mut db, "a");
+        destroy_db("testpath");
     }
 }
